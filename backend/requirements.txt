@@ -1,0 +1,9 @@
+argon2-cffi
+fastapi
+uvicorn
+pymongo
+python-jose[cryptography]
+passlib[bcrypt]
+python-dotenv
+requests
+python-multipart

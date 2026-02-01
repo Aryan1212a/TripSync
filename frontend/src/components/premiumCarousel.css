@@ -1,0 +1,40 @@
+/* Force Slick to behave horizontally */
+.slick-slider {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+}
+
+.slick-list {
+  overflow: hidden;
+  height: 420px !important;
+}
+
+.slick-track {
+  display: flex !important;        /* ← horizontal layout fix */
+  flex-direction: row !important;  /* ← force horizontal */
+  height: 100% !important;
+}
+
+.slick-slide {
+  float: none !important;          /* remove float glitches */
+  height: 100% !important;
+}
+
+.slick-slide > div {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+/* force uniform width per slide */
+.slick-slide {
+  width: 100% !important;
+}
+
+/* images */
+.premium-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  display: block;
+}
