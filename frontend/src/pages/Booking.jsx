@@ -62,7 +62,7 @@ export default function BookingPage() {
   if (loading) {
     return (
       <Box sx={{ height: "80vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <Typography variant="h6" color="#7c3aed">Loading booking page…</Typography>
+        <Typography variant="h6" color="#2563eb">Loading booking page…</Typography>
       </Box>
     );
   }
@@ -70,7 +70,7 @@ export default function BookingPage() {
   if (!pkg) {
     return (
       <Box sx={{ textAlign: "center", mt: 8 }}>
-        <Typography variant="h5" fontWeight={700} color="#7c3aed">
+        <Typography variant="h5" fontWeight={700} color="#2563eb">
           Package Not Found
         </Typography>
       </Box>
@@ -78,7 +78,14 @@ export default function BookingPage() {
   }
 
   return (
-    <Box sx={{ backgroundColor: "#faf5ff", minHeight: "100vh", pb: 10 }}>
+    <Box
+      sx={{
+        background:
+          "radial-gradient(1200px 600px at 10% -10%, rgba(59, 130, 246, 0.08), transparent 60%), radial-gradient(900px 500px at 90% 0%, rgba(16, 185, 129, 0.08), transparent 55%), #f5f7fb",
+        minHeight: "100vh",
+        pb: 10,
+      }}
+    >
       {/* ================= HEADER BANNER ================= */}
       <Box
         sx={{
@@ -93,7 +100,7 @@ export default function BookingPage() {
           sx={{
             position: "absolute",
             inset: 0,
-            background: "linear-gradient(to bottom, rgba(0,0,0,0.2), #faf5ff)",
+            background: "linear-gradient(to bottom, rgba(15, 23, 42, 0.35), rgba(245, 247, 251, 0.95))",
           }}
         />
       </Box>
@@ -106,11 +113,12 @@ export default function BookingPage() {
             sx={{
               p: 4,
               borderRadius: "24px",
-              backgroundColor: "white",
-              boxShadow: "0 12px 30px rgba(124, 58, 237, 0.12)",
+              backgroundColor: "#ffffff",
+              border: "1px solid rgba(148, 163, 184, 0.25)",
+              boxShadow: "0 18px 50px rgba(15, 23, 42, 0.08)",
             }}
           >
-            <Typography variant="h5" fontWeight={800} sx={{ mb: 3, color: "#4c1d95" }}>
+            <Typography variant="h5" fontWeight={800} sx={{ mb: 3, color: "#0f172a" }}>
               Traveller Information
             </Typography>
 
@@ -121,6 +129,12 @@ export default function BookingPage() {
                 value={form.fullname}
                 onChange={(e) => update("fullname", e.target.value)}
                 required
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#f8fafc",
+                    borderRadius: "12px",
+                  },
+                }}
               />
 
               <TextField
@@ -130,6 +144,12 @@ export default function BookingPage() {
                 onChange={(e) => update("email", e.target.value)}
                 type="email"
                 required
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#f8fafc",
+                    borderRadius: "12px",
+                  },
+                }}
               />
 
               <TextField
@@ -138,6 +158,12 @@ export default function BookingPage() {
                 value={form.phone}
                 onChange={(e) => update("phone", e.target.value)}
                 type="tel"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#f8fafc",
+                    borderRadius: "12px",
+                  },
+                }}
               />
 
               <TextField
@@ -147,6 +173,12 @@ export default function BookingPage() {
                 value={form.travelers}
                 onChange={(e) => update("travelers", e.target.value)}
                 inputProps={{ min: 1 }}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#f8fafc",
+                    borderRadius: "12px",
+                  },
+                }}
               />
 
               <TextField
@@ -157,6 +189,12 @@ export default function BookingPage() {
                 onChange={(e) => update("date", e.target.value)}
                 InputLabelProps={{ shrink: true }}
                 required
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#f8fafc",
+                    borderRadius: "12px",
+                  },
+                }}
               />
             </Stack>
 
@@ -168,14 +206,14 @@ export default function BookingPage() {
               endIcon={<ArrowForwardIcon />}
               onClick={makeBooking}
               sx={{
-                background: "linear-gradient(135deg, #7c3aed, #6d28d9)",
+                background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
                 py: 1.8,
                 fontWeight: 700,
                 borderRadius: "14px",
                 fontSize: "16px",
-                boxShadow: "0 10px 25px rgba(124,58,237,0.3)",
+                boxShadow: "0 12px 28px rgba(37, 99, 235, 0.25)",
                 "&:hover": {
-                  background: "linear-gradient(135deg, #6d28d9, #5b21b6)",
+                  background: "linear-gradient(135deg, #1d4ed8, #1e40af)",
                   transform: "translateY(-3px)",
                 },
                 transition: "all .3s",
@@ -194,13 +232,14 @@ export default function BookingPage() {
               sx={{
                 p: 4,
                 borderRadius: "24px",
-                background: "white",
-                boxShadow: "0 12px 35px rgba(124,58,237,0.25)",
+                background: "#ffffff",
+                border: "1px solid rgba(148, 163, 184, 0.25)",
+                boxShadow: "0 18px 50px rgba(15, 23, 42, 0.1)",
                 position: "sticky",
                 top: "100px",
               }}
             >
-              <Typography variant="h6" fontWeight={700} sx={{ color: "#4c1d95", mb: 2 }}>
+              <Typography variant="h6" fontWeight={700} sx={{ color: "#0f172a", mb: 2 }}>
                 Booking Summary
               </Typography>
 
@@ -221,8 +260,8 @@ export default function BookingPage() {
               </Typography>
 
               <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
-                <LocationOnIcon sx={{ fontSize: 18, color: "#7c3aed" }} />
-                <Typography sx={{ color: "#6b7280" }}>{pkg.location}</Typography>
+                <LocationOnIcon sx={{ fontSize: 18, color: "#2563eb" }} />
+                <Typography sx={{ color: "#64748b" }}>{pkg.location}</Typography>
               </Stack>
 
               <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
@@ -230,8 +269,8 @@ export default function BookingPage() {
                   icon={<StarIcon />}
                   label={`${pkg.rating} ★`}
                   sx={{
-                    bgcolor: "#e9d5ff",
-                    color: "#5b21b6",
+                    bgcolor: "#e0f2fe",
+                    color: "#0369a1",
                     fontWeight: 700,
                   }}
                 />
@@ -246,7 +285,7 @@ export default function BookingPage() {
                 variant="h4"
                 fontWeight={800}
                 sx={{
-                  background: "linear-gradient(135deg, #7c3aed, #a855f7)",
+                  background: "linear-gradient(135deg, #2563eb, #10b981)",
                   backgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   mt: 1,
@@ -260,8 +299,8 @@ export default function BookingPage() {
                   label={`${pkg.discount}% Off Today`}
                   sx={{
                     mt: 2,
-                    bgcolor: "#7c3aed",
-                    color: "white",
+                    bgcolor: "#0ea5e9",
+                    color: "#fff",
                     fontWeight: 700,
                   }}
                 />

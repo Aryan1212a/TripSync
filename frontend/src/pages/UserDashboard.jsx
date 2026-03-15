@@ -52,6 +52,14 @@ export default function UserDashboard() {
   const [date, setDate] = useState("");
   const [persons, setPersons] = useState(1);
   const [snack, setSnack] = useState({ open: false, msg: "", severity: "success" });
+  const neon = {
+    bg: "radial-gradient(1100px 600px at 15% 0%, rgba(124, 92, 255, 0.2), transparent 60%), radial-gradient(1000px 500px at 85% 10%, rgba(34, 211, 238, 0.18), transparent 55%), #0b0f1f",
+    card: "rgba(15, 23, 42, 0.72)",
+    border: "1px solid rgba(124, 92, 255, 0.35)",
+    glow: "0 12px 30px rgba(124, 92, 255, 0.25)",
+    text: "#e5e7eb",
+    muted: "#94a3b8",
+  };
 
   // Generate storage key based on user email or fallback to guest
   const getStorageKey = () => {
@@ -146,10 +154,11 @@ export default function UserDashboard() {
   };
 
   return (
-    <Container sx={{ mt: 6 }}>
+    <Box sx={{ minHeight: "100vh", background: neon.bg, py: { xs: 6, md: 8 } }}>
+      <Container sx={{ mt: 0 }}>
       {!user ? (
         <Box sx={{ textAlign: "center", py: 8 }}>
-          <Typography variant="h5" sx={{ color: "#6a00ff", fontWeight: 800 }}>
+          <Typography variant="h5" sx={{ color: "#22d3ee", fontWeight: 800 }}>
             Loading your dashboard...
           </Typography>
         </Box>
@@ -157,15 +166,15 @@ export default function UserDashboard() {
         <>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
             <div>
-              <Typography variant="h4" sx={{ color: "#6a00ff", fontWeight: 800 }}>
+              <Typography variant="h4" sx={{ color: "#7c5cff", fontWeight: 900, letterSpacing: "-0.02em" }}>
                 Your Trips
               </Typography>
-              <Typography sx={{ color: "#6f4bd8" }}>Quick access to your bookings and demo packages</Typography>
+              <Typography sx={{ color: neon.muted }}>Quick access to your bookings and demo packages</Typography>
             </div>
-            <Chip label={user?.name || "Guest"} color="secondary" sx={{ bgcolor: "#7c4dff", color: "#fff", fontWeight: 700 }} />
+            <Chip label={user?.name || "Guest"} sx={{ bgcolor: "#22d3ee", color: "#0b0f1f", fontWeight: 800 }} />
           </Box>
 
-          <Typography variant="h6" sx={{ mb: 2, color: "#4c2bd6" }}>
+          <Typography variant="h6" sx={{ mb: 2, color: "#a78bfa", fontWeight: 900 }}>
             Explore Packages
           </Typography>
 
@@ -173,14 +182,14 @@ export default function UserDashboard() {
             {demoPackages.map((pkg) => (
               <Grid item xs={12} sm={6} md={4} key={pkg.id}>
                 <motion.div whileHover={{ y: -6 }} style={{ height: "100%" }}>
-                  <Card sx={{ height: "100%", bgcolor: "rgba(124,77,255,0.06)", borderRadius: 3 }}>
+                  <Card sx={{ height: "100%", bgcolor: neon.card, borderRadius: 3, border: neon.border, boxShadow: neon.glow }}>
                     <CardContent>
-                      <Typography variant="h6" sx={{ fontWeight: 800, color: "#512da8" }}>{pkg.title}</Typography>
-                      <Typography sx={{ color: "#6b49d9", mb: 2 }}>{pkg.desc}</Typography>
-                      <Typography sx={{ fontWeight: 700, color: "#6a00ff" }}>₹{pkg.price}</Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 800, color: neon.text }}>{pkg.title}</Typography>
+                      <Typography sx={{ color: neon.muted, mb: 2 }}>{pkg.desc}</Typography>
+                      <Typography sx={{ fontWeight: 800, color: "#22d3ee" }}>₹{pkg.price}</Typography>
                     </CardContent>
                     <CardActions>
-                      <Button size="small" onClick={() => openBooking(pkg)} sx={{ color: "#fff", bgcolor: "#6a00ff", '&:hover':{ bgcolor:'#5a00e6' }}}>Book Now</Button>
+                      <Button size="small" onClick={() => openBooking(pkg)} sx={{ color: "#0b0f1f", bgcolor: "#22d3ee", fontWeight: 800, '&:hover':{ bgcolor:'#38bdf8' }}}>Book Now</Button>
                     </CardActions>
                   </Card>
                 </motion.div>
@@ -188,38 +197,38 @@ export default function UserDashboard() {
             ))}
           </Grid>
 
-          <Typography variant="h6" sx={{ mb: 2, color: "#4c2bd6" }}>
+          <Typography variant="h6" sx={{ mb: 2, color: "#22d3ee", fontWeight: 900 }}>
             My Bookings
           </Typography>
 
           <Grid container spacing={2}>
             {bookings.length === 0 && (
               <Grid item xs={12}>
-                <Typography sx={{ color: "#777" }}>No bookings yet — try booking a demo package above.</Typography>
+                <Typography sx={{ color: neon.muted }}>No bookings yet — try booking a demo package above.</Typography>
               </Grid>
             )}
 
             {bookings.map((b) => (
               <Grid item xs={12} md={6} key={b.id}>
-                <Card sx={{ borderRadius: 2, bgcolor: "rgba(98,0,238,0.04)" }}>
+                <Card sx={{ borderRadius: 2, bgcolor: neon.card, border: neon.border, boxShadow: neon.glow }}>
                   <CardContent>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#4b0082" }}>{b.package_title}</Typography>
-                    <Typography sx={{ color: "#6f4bd8" }}>{new Date(b.date).toLocaleDateString()}</Typography>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 800, color: neon.text }}>{b.package_title}</Typography>
+                    <Typography sx={{ color: neon.muted }}>{new Date(b.date).toLocaleDateString()}</Typography>
                     <Box sx={{ mt: 1, display: "flex", gap: 2, alignItems: "center" }}>
-                      <Chip label={`Persons: ${b.persons}`} sx={{ bgcolor: "#ede7f6" }} />
-                      <Chip label={`Total: ₹${b.total}`} color="primary" sx={{ bgcolor: "#7c4dff", color: "#fff" }} />
+                      <Chip label={`Persons: ${b.persons}`} sx={{ bgcolor: "rgba(167, 139, 250, 0.2)", color: "#c4b5fd", border: "1px solid rgba(167, 139, 250, 0.5)" }} />
+                      <Chip label={`Total: ₹${b.total}`} sx={{ bgcolor: "rgba(34, 211, 238, 0.2)", color: "#7dd3fc", border: "1px solid rgba(34, 211, 238, 0.5)" }} />
                     </Box>
-                    <Typography sx={{ mt: 1, color: "#666", fontSize: 12 }}>Booked on {new Date(b.created_at).toLocaleString()}</Typography>
+                    <Typography sx={{ mt: 1, color: neon.muted, fontSize: 12 }}>Booked on {new Date(b.created_at).toLocaleString()}</Typography>
                   </CardContent>
                   <CardActions>
-                    <Button size="small" onClick={() => cancelBooking(b.id)} sx={{ color: "#d32f2f", fontWeight: 600 }}>Cancel Booking</Button>
+                    <Button size="small" onClick={() => cancelBooking(b.id)} sx={{ color: "#f43f5e", fontWeight: 700 }}>Cancel Booking</Button>
                   </CardActions>
                 </Card>
               </Grid>
             ))}
           </Grid>
 
-          <Dialog open={open} onClose={closeBooking}>
+          <Dialog open={open} onClose={closeBooking} PaperProps={{ sx: { bgcolor: neon.card, border: neon.border } }}>
             <DialogTitle>Book {selected?.title}</DialogTitle>
             <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 320 }}>
               <TextField label="Travel Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} InputLabelProps={{ shrink: true }} />
@@ -231,7 +240,7 @@ export default function UserDashboard() {
             </DialogContent>
             <DialogActions>
               <Button onClick={closeBooking}>Cancel</Button>
-              <Button onClick={confirmBooking} variant="contained" sx={{ bgcolor: "#6a00ff", color: "#fff", '&:hover':{ bgcolor:'#5a00e6' }}}>Confirm Booking</Button>
+              <Button onClick={confirmBooking} variant="contained" sx={{ bgcolor: "#22d3ee", color: "#0b0f1f", fontWeight: 800, '&:hover':{ bgcolor:'#38bdf8' }}}>Confirm Booking</Button>
             </DialogActions>
           </Dialog>
 
@@ -242,6 +251,7 @@ export default function UserDashboard() {
           </Snackbar>
         </>
       )}
-    </Container>
+      </Container>
+    </Box>
   );
 }

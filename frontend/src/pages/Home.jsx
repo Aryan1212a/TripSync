@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -8,10 +8,10 @@ import {
   Stack,
   Chip,
   Button,
+  ButtonBase,
   Card,
   CardMedia,
   CardContent,
-  Grid,
   Paper,
   TextField,
   InputAdornment,
@@ -22,6 +22,8 @@ import {
   DialogActions,
   Snackbar,
   Alert,
+  IconButton,
+  Skeleton,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -29,13 +31,15 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import StarIcon from "@mui/icons-material/Star";
 import WavingHandIcon from "@mui/icons-material/WavingHand";
 import { useAuth } from "../context/AuthContext";
+import { API_URL } from "../config";
 
 export default function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [packages, setPackages] = useState([]);
+  const [allPackages, setAllPackages] = useState([]);
   const [slideIndex, setSlideIndex] = useState(0);
+  const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
   const [category, setCategory] = useState("All");
@@ -55,12 +59,38 @@ export default function Home() {
   const [bookingPersons, setBookingPersons] = useState(1);
 
   const [snack, setSnack] = useState({ open: false, msg: "", severity: "info" });
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  const filteredPackages = useMemo(() => {
+    const q = searchQuery;
+    return allPackages.filter((p) => {
+      const matchesQuery = q
+        ? `${p.title} ${p.description} ${p.location}`
+            .toLowerCase()
+            .includes(q)
+        : true;
+      const price = Number(p.price || 0);
+      const matchesPrice =
+        price >= Number(minPrice) && price <= Number(maxPrice);
+      const matchesCategory =
+        category === "All" || p.category === category;
+      return matchesQuery && matchesPrice && matchesCategory;
+    });
+  }, [allPackages, category, maxPrice, minPrice, searchQuery]);
+
+  const priceFormatter = useMemo(
+    () => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }),
+    []
+  );
 
   useEffect(() => {
     // Always fetch from API first to get latest packages
     const fetchPackages = async () => {
+      setLoading(true);
+      setLoadError("");
       try {
-        const response = await fetch("http://localhost:8000/api/packages/", {
+        const response = await fetch(`${API_URL}/api/packages/`, {
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache'
@@ -69,7 +99,7 @@ export default function Home() {
         if (response.ok) {
           const data = await response.json();
           console.log("Fetched from API:", data.length, "packages");
-          setPackages(data);
+          setAllPackages(data);
           // Store with timestamp
           localStorage.setItem("public_packages", JSON.stringify(data));
           localStorage.setItem("packages_cache_time", Date.now().toString());
@@ -79,7 +109,8 @@ export default function Home() {
           const raw = localStorage.getItem("public_packages");
           const parsed = raw ? JSON.parse(raw) : [];
           console.log("Fallback to localStorage:", parsed.length, "packages");
-          setPackages(parsed);
+          setAllPackages(parsed);
+          setLoadError("Couldn't refresh packages. Showing cached results.");
         }
       } catch (e) {
         console.warn("API fetch failed, using localStorage:", e);
@@ -87,121 +118,76 @@ export default function Home() {
         const raw = localStorage.getItem("public_packages");
         const parsed = raw ? JSON.parse(raw) : [];
         console.log("Error fallback - localStorage:", parsed.length, "packages");
-        setPackages(parsed);
+        setAllPackages(parsed);
+        setLoadError("Couldn't load packages from the server. Showing cached results.");
+      } finally {
+        setLoading(false);
       }
     };
     fetchPackages();
   }, []);
 
   useEffect(() => {
-    if (!packages || packages.length <= 1) return;
+    if (!filteredPackages || filteredPackages.length <= 1) return;
     const t = setInterval(
-      () => setSlideIndex((p) => (p + 1) % packages.length),
+      () => setSlideIndex((p) => (p + 1) % filteredPackages.length),
       5000
     );
     return () => clearInterval(t);
-  }, [packages]);
+  }, [filteredPackages]);
 
-  const onSearch = () => {
-    const q = searchQuery.trim().toLowerCase();
-    
-    // Fetch fresh data for search
-    fetch("http://localhost:8000/api/packages/")
-      .then(r => r.json())
-      .then(list => {
-        if (!q) {
-          setPackages(list);
-          return;
-        }
-
-        setPackages(
-          list.filter((p) =>
-            `${p.title} ${p.description} ${p.location}`
-              .toLowerCase()
-              .includes(q)
-          )
-        );
-        setSlideIndex(0);
-      })
-      .catch(() => {
-        // Fallback to localStorage if API fails
-        const raw = localStorage.getItem("public_packages");
-        const list = raw ? JSON.parse(raw) : [];
-        setPackages(q ? list.filter((p) =>
-          `${p.title} ${p.description} ${p.location}`
-            .toLowerCase()
-            .includes(q)
-        ) : list);
-        setSlideIndex(0);
-      });
-  };
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearchQuery(searchInput.trim().toLowerCase());
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
   const onCategorySelect = (label) => {
     setCategory(label);
-    // Fetch fresh data for category filter
-    fetch("http://localhost:8000/api/packages/")
-      .then(r => r.json())
-      .then(list => {
-        if (label === "All") setPackages(list);
-        else setPackages(list.filter((p) => p.category === label));
-        setSlideIndex(0);
-      })
-      .catch(() => {
-        // Fallback
-        const raw = localStorage.getItem("public_packages");
-        const list = raw ? JSON.parse(raw) : [];
-        setPackages(label === "All" ? list : list.filter((p) => p.category === label));
-        setSlideIndex(0);
-      });
   };
 
   const onFilterApply = () => {
-    // Fetch fresh data for price/category filter
-    fetch("http://localhost:8000/api/packages/")
-      .then(r => r.json())
-      .then(list => {
-        const filtered = list.filter(
-          (p) =>
-            p.price >= Number(minPrice) &&
-            p.price <= Number(maxPrice) &&
-            (category === "All" || p.category === category)
-        );
-        setPackages(filtered);
-        setSlideIndex(0);
-      })
-      .catch(() => {
-        // Fallback
-        const raw = localStorage.getItem("public_packages");
-        const list = raw ? JSON.parse(raw) : [];
-        const filtered = list.filter(
-          (p) =>
-            p.price >= Number(minPrice) &&
-            p.price <= Number(maxPrice) &&
-            (category === "All" || p.category === category)
-        );
-        setPackages(filtered);
-        setSlideIndex(0);
-      });
+    setSlideIndex(0);
   };
 
   const onFilterReset = () => {
     setMinPrice(0);
     setMaxPrice(100000);
     setCategory("All");
-    // Fetch fresh data for reset
-    fetch("http://localhost:8000/api/packages/")
-      .then(r => r.json())
-      .then(list => {
-        setPackages(list);
-        setSlideIndex(0);
-      })
-      .catch(() => {
-        // Fallback
-        const raw = localStorage.getItem("public_packages");
-        setPackages(raw ? JSON.parse(raw) : []);
-        setSlideIndex(0);
-      });
+    setSlideIndex(0);
   };
+
+  const refreshPackages = async () => {
+    setLoading(true);
+    setLoadError("");
+    try {
+      const response = await fetch(`${API_URL}/api/packages/`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`Status ${response.status}`);
+      }
+      const data = await response.json();
+      setAllPackages(data);
+      localStorage.setItem("public_packages", JSON.stringify(data));
+      localStorage.setItem("packages_cache_time", Date.now().toString());
+    } catch (e) {
+      const raw = localStorage.getItem("public_packages");
+      setAllPackages(raw ? JSON.parse(raw) : []);
+      setLoadError("Couldn't refresh packages. Showing cached results.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setSlideIndex(0);
+  }, [searchQuery, category, minPrice, maxPrice]);
+
 
   const openBookingDialog = (pkg) => {
     setSelectedPackage(pkg);
@@ -212,6 +198,7 @@ export default function Home() {
 
   const confirmBooking = () => {
     if (!selectedPackage) return;
+    if (!bookingDate || Number(bookingPersons) < 1) return;
 
     const total =
       (selectedPackage.price || 0) * Number(bookingPersons || 1);
@@ -247,15 +234,22 @@ export default function Home() {
   };
 
   const prevSlide = () =>
-    setSlideIndex((p) => (p - 1 + packages.length) % packages.length);
+    setSlideIndex((p) => (p - 1 + filteredPackages.length) % filteredPackages.length);
 
   const nextSlide = () =>
-    setSlideIndex((p) => (p + 1) % packages.length);
+    setSlideIndex((p) => (p + 1) % filteredPackages.length);
 
   const goToSlide = (i) => setSlideIndex(i);
 
   return (
-    <Box sx={{ width: "100%", backgroundColor: "#fafafa", minHeight: "100vh" }}>
+    <Box
+      sx={{
+        width: "100%",
+        background:
+          "radial-gradient(1200px 600px at 10% -10%, rgba(94, 115, 255, 0.25), transparent 60%), radial-gradient(900px 500px at 90% 10%, rgba(255, 163, 102, 0.18), transparent 55%), #f7f8fb",
+        minHeight: "100vh",
+      }}
+    >
       {user && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -265,9 +259,10 @@ export default function Home() {
           <Box
             sx={{
               background:
-                "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                "linear-gradient(135deg, rgba(20, 30, 80, 0.9) 0%, rgba(52, 62, 120, 0.9) 100%)",
               py: 2,
-              px: 4,
+              px: { xs: 2, md: 4 },
+              borderBottom: "1px solid rgba(255,255,255,0.08)",
               display: "flex",
               justifyContent: "flex-start",
               alignItems: "center",
@@ -287,13 +282,24 @@ export default function Home() {
       {/* HERO */}
       <Box
         sx={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          py: 8,
-          pb: 10,
+          background:
+            "linear-gradient(135deg, rgba(17, 24, 75, 0.95) 0%, rgba(63, 63, 140, 0.95) 45%, rgba(19, 103, 138, 0.92) 100%)",
+          py: { xs: 7, md: 10 },
+          pb: { xs: 9, md: 12 },
           position: "relative",
           overflow: "hidden",
         }}
       >
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.5,
+            background:
+              "radial-gradient(400px 280px at 20% 20%, rgba(255,255,255,0.25), transparent 70%), radial-gradient(500px 300px at 80% 10%, rgba(124, 255, 211, 0.3), transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
         <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -304,7 +310,11 @@ export default function Home() {
               <Typography
                 variant="h2"
                 fontWeight="900"
-                sx={{ color: "#fff", mb: 2 }}
+                sx={{
+                  color: "#fff",
+                  mb: 2,
+                  letterSpacing: "-0.02em",
+                }}
               >
                 Discover Your Next Adventure
               </Typography>
@@ -323,28 +333,54 @@ export default function Home() {
               <Stack
                 direction="row"
                 spacing={2}
-                sx={{ maxWidth: 700, mx: "auto" }}
+                sx={{
+                  maxWidth: 760,
+                  mx: "auto",
+                  p: 1,
+                  borderRadius: "20px",
+                  background: "rgba(255,255,255,0.08)",
+                  backdropFilter: "blur(12px)",
+                  border: "1px solid rgba(255,255,255,0.14)",
+                }}
               >
                 <TextField
                   fullWidth
                   placeholder="Where do you want to go?"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && onSearch()}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && setSearchQuery(searchInput.trim().toLowerCase())}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <SearchIcon sx={{ color: "#667eea" }} />
+                        <SearchIcon sx={{ color: "#ffffff" }} />
                       </InputAdornment>
                     ),
+                  }}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      background: "rgba(255,255,255,0.1)",
+                      borderRadius: "16px",
+                      color: "#fff",
+                    },
+                    "& input::placeholder": {
+                      color: "rgba(255,255,255,0.7)",
+                    },
                   }}
                 />
 
                 <Button
                   variant="contained"
-                  onClick={onSearch}
+                  onClick={() => setSearchQuery(searchInput.trim().toLowerCase())}
                   endIcon={<ArrowForwardIcon />}
-                  sx={{ px: 5, borderRadius: "16px" }}
+                  sx={{
+                    px: 4,
+                    borderRadius: "16px",
+                    textTransform: "none",
+                    fontWeight: 700,
+                    background:
+                      "linear-gradient(135deg, #7c5cff 0%, #4fd1c5 100%)",
+                    boxShadow: "0 12px 30px rgba(79, 209, 197, 0.3)",
+                  }}
                 >
                   Explore
                 </Button>
@@ -363,7 +399,11 @@ export default function Home() {
           viewport={{ once: true }}
         >
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h3" fontWeight="900" sx={{ mb: 2 }}>
+            <Typography
+              variant="h3"
+              fontWeight="900"
+              sx={{ mb: 1.5, letterSpacing: "-0.01em" }}
+            >
               Popular Packages
             </Typography>
             <Typography variant="h6" sx={{ color: "#64748b", fontWeight: 400 }}>
@@ -380,8 +420,14 @@ export default function Home() {
                 overflow: "hidden",
               }}
             >
-              {packages.length > 0 && (() => {
-                const pkg = packages[slideIndex];
+              {loading && (
+                <Card sx={{ borderRadius: "18px", overflow: "hidden", height: { xs: "auto", md: 420 } }}>
+                  <Skeleton variant="rectangular" height={420} />
+                </Card>
+              )}
+
+              {!loading && filteredPackages.length > 0 && (() => {
+                const pkg = filteredPackages[slideIndex];
                 if (!pkg) return null;
 
                 return (
@@ -399,11 +445,13 @@ export default function Home() {
                       sx={{
                         borderRadius: "18px",
                         overflow: "hidden",
-                        boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
+                        boxShadow: "0 18px 50px rgba(20, 20, 60, 0.18)",
                         cursor: "pointer",
                         height: { xs: "auto", md: 420 },
                         display: "flex",
                         flexDirection: { xs: "column", md: "row" },
+                        background: "rgba(255,255,255,0.9)",
+                        backdropFilter: "blur(8px)",
                       }}
                     >
                       <Box
@@ -418,6 +466,7 @@ export default function Home() {
                           height="100%"
                           image={pkg.image}
                           alt={pkg.title}
+                          loading="lazy"
                           sx={{
                             width: "100%",
                             height: "100%",
@@ -445,8 +494,10 @@ export default function Home() {
                             top: 16,
                             right: 16,
                             zIndex: 2,
-                            bgcolor: "#ff6b6b",
+                            bgcolor: "rgba(124, 92, 255, 0.9)",
                             color: "#fff",
+                            backdropFilter: "blur(6px)",
+                            border: "1px solid rgba(255,255,255,0.3)",
                           }}
                         />
                       </Box>
@@ -467,7 +518,7 @@ export default function Home() {
                             sx={{ mb: 1.5 }}
                           >
                             <LocationOnIcon
-                              sx={{ color: "#667eea", fontSize: 18 }}
+                              sx={{ color: "#7c5cff", fontSize: 18 }}
                             />
                             <Typography
                               sx={{
@@ -483,7 +534,7 @@ export default function Home() {
                           <Typography
                             variant="h5"
                             fontWeight="800"
-                            sx={{ color: "#1e1b4b", mb: 1 }}
+                            sx={{ color: "#14183a", mb: 1 }}
                           >
                             {pkg.title}
                           </Typography>
@@ -503,12 +554,12 @@ export default function Home() {
                             fontWeight="900"
                             sx={{
                               background:
-                                "linear-gradient(135deg, #667eea, #764ba2)",
+                                "linear-gradient(135deg, #7c5cff, #4fd1c5)",
                               backgroundClip: "text",
                               WebkitTextFillColor: "transparent",
                             }}
                           >
-                            ₹{pkg.price}
+                            {priceFormatter.format(pkg.price || 0)}
                           </Typography>
 
                           <Stack
@@ -536,9 +587,11 @@ export default function Home() {
                               }}
                               sx={{
                                 textTransform: "none",
-                                borderRadius: "10px",
+                                borderRadius: "12px",
                                 background:
-                                  "linear-gradient(135deg,#667eea,#764ba2)",
+                                  "linear-gradient(135deg,#7c5cff,#4fd1c5)",
+                                boxShadow:
+                                  "0 10px 20px rgba(79, 209, 197, 0.25)",
                               }}
                             >
                               Book Now
@@ -552,7 +605,7 @@ export default function Home() {
               })()}
             </Box>
 
-            {packages.length > 1 && (
+            {!loading && filteredPackages.length > 1 && (
               <>
                 <Box
                   onClick={prevSlide}
@@ -565,7 +618,7 @@ export default function Home() {
                     display: { xs: "none", md: "block" },
                   }}
                 >
-                  <Button>❮</Button>
+                  <IconButton aria-label="Previous package">❮</IconButton>
                 </Box>
 
                 <Box
@@ -579,22 +632,23 @@ export default function Home() {
                     display: { xs: "none", md: "block" },
                   }}
                 >
-                  <Button>❯</Button>
+                  <IconButton aria-label="Next package">❯</IconButton>
                 </Box>
               </>
             )}
 
-            {packages.length > 1 && (
+            {!loading && filteredPackages.length > 1 && (
               <Stack
                 direction="row"
                 spacing={1.5}
                 justifyContent="center"
                 sx={{ mt: 6 }}
               >
-                {packages.map((_, idx) => (
-                  <Box
+                {filteredPackages.map((_, idx) => (
+                  <ButtonBase
                     key={idx}
                     onClick={() => goToSlide(idx)}
+                    aria-label={`Go to package ${idx + 1}`}
                     sx={{
                       width: slideIndex === idx ? 32 : 12,
                       height: 12,
@@ -615,7 +669,17 @@ export default function Home() {
 
       {/* CATEGORY SECTION */}
       <Container maxWidth="lg" sx={{ mt: 6, mb: 4 }}>
-        <Paper sx={{ p: 4, borderRadius: "20px", mb: 4 }} elevation={3}>
+        <Paper
+          sx={{
+            p: 4,
+            borderRadius: "20px",
+            mb: 4,
+            background: "rgba(255,255,255,0.9)",
+            border: "1px solid rgba(15, 23, 42, 0.08)",
+            backdropFilter: "blur(8px)",
+          }}
+          elevation={2}
+        >
           <Typography variant="h5" fontWeight="700" sx={{ mb: 3 }}>
             Browse by Category
           </Typography>
@@ -627,7 +691,12 @@ export default function Home() {
                 label={`${cat.icon} ${cat.label}`}
                 clickable
                 onClick={() => onCategorySelect(cat.label)}
-                sx={{ px: 2.5, py: 1.5 }}
+                sx={{
+                  px: 2.5,
+                  py: 1.5,
+                  borderRadius: "999px",
+                  borderColor: "rgba(124, 92, 255, 0.35)",
+                }}
                 variant={category === cat.label ? "filled" : "outlined"}
               />
             ))}
@@ -673,6 +742,9 @@ export default function Home() {
             <Button variant="outlined" onClick={onFilterReset}>
               Reset
             </Button>
+            <Button variant="text" onClick={refreshPackages}>
+              Refresh
+            </Button>
           </Stack>
         </Paper>
       </Container>
@@ -692,21 +764,63 @@ export default function Home() {
                   : "Popular Packages"}
               </Typography>
               <Typography sx={{ color: "#64748b" }}>
-                {packages.length} packages available
+                {filteredPackages.length} packages available
               </Typography>
             </Box>
           </Stack>
 
-          {packages.length === 0 ? (
+          {loadError && (
+            <Alert severity="warning" sx={{ mb: 3 }}>
+              {loadError}
+            </Alert>
+          )}
+
+          {loading ? (
+            <Box
+              sx={{
+                display: "grid",
+                gap: 3,
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, minmax(0, 1fr))",
+                  md: "repeat(3, minmax(0, 1fr))",
+                  lg: "repeat(4, minmax(0, 1fr))",
+                },
+                alignItems: "stretch",
+              }}
+            >
+              {Array.from({ length: 4 }).map((_, idx) => (
+                <Box key={idx} sx={{ display: "flex", minWidth: 0 }}>
+                  <Skeleton
+                    variant="rectangular"
+                    height={280}
+                    sx={{ borderRadius: "16px", width: "100%" }}
+                  />
+                </Box>
+              ))}
+            </Box>
+          ) : filteredPackages.length === 0 ? (
             <Paper sx={{ p: 8, textAlign: "center", borderRadius: "20px" }}>
               <Typography variant="h6" sx={{ color: "#94a3b8" }}>
                 No packages found
               </Typography>
             </Paper>
           ) : (
-            <Grid container spacing={3}>
-              {packages.map((pkg) => (
-                <Grid item xs={12} sm={6} md={3} key={pkg._id || pkg.id}>
+            <Box
+              sx={{
+                display: "grid",
+                gap: 3,
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, minmax(0, 1fr))",
+                  md: "repeat(3, minmax(0, 1fr))",
+                  lg: "repeat(4, minmax(0, 1fr))",
+                },
+                alignItems: "stretch",
+              }}
+            >
+              {filteredPackages.map((pkg) => (
+                <Box key={pkg._id || pkg.id} sx={{ display: "flex", minWidth: 0 }}>
                   <Card
                     onClick={() =>
                       navigate(`/package/${pkg.id || pkg._id}`)
@@ -715,14 +829,18 @@ export default function Home() {
                       borderRadius: "16px",
                       overflow: "hidden",
                       height: "100%",
+                      width: "100%",
+                      minWidth: 0,
                       display: "flex",
                       flexDirection: "column",
                       transition: "transform 0.3s, box-shadow 0.3s",
                       "&:hover": {
                         transform: "translateY(-4px)",
-                        boxShadow: "0 12px 30px rgba(102, 126, 234, 0.2)",
+                        boxShadow: "0 16px 40px rgba(20, 20, 60, 0.18)",
                       },
                       cursor: "pointer",
+                      background: "rgba(255,255,255,0.95)",
+                      border: "1px solid rgba(15, 23, 42, 0.06)",
                     }}
                   >
                     <Box
@@ -737,6 +855,7 @@ export default function Home() {
                         component="img"
                         image={pkg.image || "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=60"}
                         alt={pkg.title}
+                        loading="lazy"
                         sx={{
                           width: "100%",
                           height: "100%",
@@ -749,11 +868,24 @@ export default function Home() {
                       />
                     </Box>
 
-                    <CardContent sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", p: 1.5, minHeight: 180 }}>
+                    <CardContent sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", p: 1.5, minHeight: 180, minWidth: 0 }}>
                       <div>
                         <Stack direction="row" spacing={0.5} sx={{ mb: 0.8 }} alignItems="center">
-                          <LocationOnIcon sx={{ color: "#667eea", fontSize: 14 }} />
-                          <Typography sx={{ color: "#64748b", fontSize: 11, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <LocationOnIcon sx={{ color: "#7c5cff", fontSize: 14 }} />
+                          <Typography
+                            sx={{
+                              color: "#64748b",
+                              fontSize: 11,
+                              fontWeight: 500,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "normal",
+                              wordBreak: "break-word",
+                              overflowWrap: "anywhere",
+                              lineHeight: 1.3,
+                              minHeight: "1.3em",
+                            }}
+                          >
                             {pkg.location || "Location TBA"}
                           </Typography>
                         </Stack>
@@ -761,19 +893,46 @@ export default function Home() {
                         <Typography
                           variant="body2"
                           fontWeight="700"
-                          sx={{ mb: 0.6, fontSize: 13, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}
+                          sx={{
+                            mb: 0.6,
+                            fontSize: 13,
+                            lineHeight: 1.3,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
+                            minHeight: "2.6em",
+                          }}
                         >
                           {pkg.title}
                         </Typography>
 
-                        <Typography sx={{ color: "#64748b", mb: 1, fontSize: 11, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", height: 24 }}>
+                        <Typography
+                          sx={{
+                            color: "#64748b",
+                            mb: 1,
+                            fontSize: 11,
+                            lineHeight: 1.3,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
+                            minHeight: "2.6em",
+                          }}
+                        >
                           {pkg.description || "Travel experience"}
                         </Typography>
                       </div>
 
                       <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={0.5}>
-                        <Typography variant="body2" fontWeight="700" sx={{ fontSize: 12, color: "#667eea" }}>
-                          ₹{pkg.price?.toLocaleString() || "N/A"}
+                        <Typography variant="body2" fontWeight="700" sx={{ fontSize: 12, color: "#7c5cff" }}>
+                          {priceFormatter.format(pkg.price || 0)}
                         </Typography>
 
                         <Button
@@ -790,9 +949,9 @@ export default function Home() {
                       </Stack>
                     </CardContent>
                   </Card>
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           )}
         </Box>
       </Container>
@@ -814,6 +973,9 @@ export default function Home() {
             type="date"
             value={bookingDate}
             onChange={(e) => setBookingDate(e.target.value)}
+            inputProps={{
+              min: new Date().toISOString().split("T")[0],
+            }}
             InputLabelProps={{ shrink: true }}
           />
 
@@ -838,7 +1000,11 @@ export default function Home() {
 
         <DialogActions>
           <Button onClick={closeBookingDialog}>Cancel</Button>
-          <Button variant="contained" onClick={confirmBooking}>
+          <Button
+            variant="contained"
+            onClick={confirmBooking}
+            disabled={!bookingDate || Number(bookingPersons) < 1}
+          >
             Confirm Booking
           </Button>
         </DialogActions>

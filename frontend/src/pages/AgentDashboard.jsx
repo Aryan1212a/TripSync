@@ -40,6 +40,14 @@ export default function AgentDashboard() {
   const [newPkg, setNewPkg] = useState({ title: "", desc: "", price: "", duration: "", travel_destination: "", travel_plans: "", image_url: "" });
   const [snack, setSnack] = useState({ open: false, msg: "", severity: "success" });
   const [fetchingImage, setFetchingImage] = useState(false);
+  const neon = {
+    bg: "radial-gradient(1100px 600px at 15% 0%, rgba(16, 185, 129, 0.18), transparent 60%), radial-gradient(1000px 500px at 85% 5%, rgba(59, 130, 246, 0.22), transparent 55%), #0b0f1f",
+    card: "rgba(15, 23, 42, 0.72)",
+    border: "1px solid rgba(16, 185, 129, 0.35)",
+    glow: "0 12px 30px rgba(16, 185, 129, 0.25)",
+    text: "#e5e7eb",
+    muted: "#94a3b8",
+  };
 
   const [pendingPackages, setPendingPackages] = useState([]);
   const [approvedPackages, setApprovedPackages] = useState([]);
@@ -234,10 +242,11 @@ export default function AgentDashboard() {
   };
 
   return (
-    <Container sx={{ mt: 6, mb: 6 }}>
+    <Box sx={{ minHeight: "100vh", background: neon.bg, py: { xs: 6, md: 8 } }}>
+      <Container sx={{ mt: 0, mb: 0 }}>
       {!user ? (
         <Box sx={{ textAlign: "center", py: 8 }}>
-          <Typography variant="h5" sx={{ color: "#ff6b6b", fontWeight: 800 }}>
+          <Typography variant="h5" sx={{ color: "#22d3ee", fontWeight: 800 }}>
             Loading your agent dashboard...
           </Typography>
         </Box>
@@ -245,21 +254,21 @@ export default function AgentDashboard() {
         <>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
             <div>
-              <Typography variant="h4" sx={{ color: "#ff6b6b", fontWeight: 800 }}>
+              <Typography variant="h4" sx={{ color: "#34d399", fontWeight: 900, letterSpacing: "-0.02em" }}>
                 Agent Dashboard
               </Typography>
-              <Typography sx={{ color: "#d84040" }}>Manage packages and track bookings</Typography>
+              <Typography sx={{ color: neon.muted }}>Manage packages and track bookings</Typography>
             </div>
-            <Chip label={user?.name || "Agent"} color="error" sx={{ bgcolor: "#ff6b6b", color: "#fff", fontWeight: 700 }} />
+            <Chip label={user?.name || "Agent"} sx={{ bgcolor: "#22d3ee", color: "#0b0f1f", fontWeight: 800 }} />
           </Box>
 
           <Grid container spacing={2} sx={{ mb: 4 }}>
             <Grid item xs={12} sm={6} md={3}>
               <motion.div whileHover={{ y: -4 }}>
-                <Card sx={{ bgcolor: "rgba(255,107,107,0.08)", borderRadius: 3 }}>
+                <Card sx={{ bgcolor: neon.card, borderRadius: 3, border: neon.border, boxShadow: neon.glow }}>
                   <CardContent>
-                    <Typography sx={{ color: "#999", fontSize: 12 }}>Total Bookings</Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 800, color: "#ff6b6b", mt: 1 }}>{stats.totalBookings}</Typography>
+                    <Typography sx={{ color: neon.muted, fontSize: 12 }}>Total Bookings</Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: "#34d399", mt: 1 }}>{stats.totalBookings}</Typography>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -267,10 +276,10 @@ export default function AgentDashboard() {
 
             <Grid item xs={12} sm={6} md={3}>
               <motion.div whileHover={{ y: -4 }}>
-                <Card sx={{ bgcolor: "rgba(255,107,107,0.08)", borderRadius: 3 }}>
+                <Card sx={{ bgcolor: neon.card, borderRadius: 3, border: neon.border, boxShadow: neon.glow }}>
                   <CardContent>
-                    <Typography sx={{ color: "#999", fontSize: 12 }}>Total Revenue</Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 800, color: "#ff6b6b", mt: 1 }}>₹{stats.totalRevenue.toLocaleString()}</Typography>
+                    <Typography sx={{ color: neon.muted, fontSize: 12 }}>Total Revenue</Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: "#22d3ee", mt: 1 }}>₹{stats.totalRevenue.toLocaleString()}</Typography>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -278,10 +287,10 @@ export default function AgentDashboard() {
 
             <Grid item xs={12} sm={6} md={3}>
               <motion.div whileHover={{ y: -4 }}>
-                <Card sx={{ bgcolor: "rgba(255,107,107,0.08)", borderRadius: 3 }}>
+                <Card sx={{ bgcolor: neon.card, borderRadius: 3, border: neon.border, boxShadow: neon.glow }}>
                   <CardContent>
-                    <Typography sx={{ color: "#999", fontSize: 12 }}>Commission (10%)</Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 800, color: "#ff6b6b", mt: 1 }}>₹{(stats.totalRevenue * 0.1).toLocaleString()}</Typography>
+                    <Typography sx={{ color: neon.muted, fontSize: 12 }}>Commission (10%)</Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: "#a78bfa", mt: 1 }}>₹{(stats.totalRevenue * 0.1).toLocaleString()}</Typography>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -289,13 +298,13 @@ export default function AgentDashboard() {
 
             <Grid item xs={12} sm={6} md={3}>
               <motion.div whileHover={{ y: -4 }}>
-                <Card sx={{ bgcolor: "rgba(255,107,107,0.08)", borderRadius: 3 }}>
+                <Card sx={{ bgcolor: neon.card, borderRadius: 3, border: neon.border, boxShadow: neon.glow }}>
                   <CardContent>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <TrendingUpIcon sx={{ color: "#ff6b6b" }} />
-                      <Typography sx={{ color: "#999", fontSize: 12 }}>Packages</Typography>
+                      <TrendingUpIcon sx={{ color: "#38bdf8" }} />
+                      <Typography sx={{ color: neon.muted, fontSize: 12 }}>Packages</Typography>
                     </Box>
-                    <Typography variant="h5" sx={{ fontWeight: 800, color: "#ff6b6b", mt: 1 }}>{packages.length}</Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: "#38bdf8", mt: 1 }}>{packages.length}</Typography>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -303,32 +312,32 @@ export default function AgentDashboard() {
           </Grid>
 
           <Box sx={{ mb: 4 }}>
-            <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)} sx={{ bgcolor: "#ff6b6b", color: "#fff", fontWeight: 700, '&:hover': { bgcolor: "#ff5252" } }}>Create New Package</Button>
+            <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)} sx={{ bgcolor: "#22d3ee", color: "#0b0f1f", fontWeight: 800, boxShadow: neon.glow, '&:hover': { bgcolor: "#38bdf8" } }}>Create New Package</Button>
           </Box>
 
-          <Typography variant="h6" sx={{ mb: 2, color: "#d84040", fontWeight: 800 }}>My Packages ({packages.length})</Typography>
+          <Typography variant="h6" sx={{ mb: 2, color: "#34d399", fontWeight: 900 }}>My Packages ({packages.length})</Typography>
 
           <Grid container spacing={3} sx={{ mb: 6 }}>
             {packages.length === 0 && (
-              <Grid item xs={12}><Typography sx={{ color: "#999" }}>No packages yet. Create your first package above!</Typography></Grid>
+              <Grid item xs={12}><Typography sx={{ color: neon.muted }}>No packages yet. Create your first package above!</Typography></Grid>
             )}
 
             {packages.map((pkg) => (
               <Grid item xs={12} sm={6} md={4} key={pkg.id}>
                 <motion.div whileHover={{ y: -6 }} style={{ height: "100%" }}>
-                  <Card sx={{ height: "100%", bgcolor: "rgba(255,107,107,0.04)", borderRadius: 3 }}>
+                  <Card sx={{ height: "100%", bgcolor: neon.card, borderRadius: 3, border: neon.border, boxShadow: neon.glow }}>
                     <CardContent>
-                      <Typography variant="h6" sx={{ fontWeight: 800, color: "#c62828" }}>{pkg.title}</Typography>
-                      <Typography sx={{ color: "#d84040", mb: 1, fontSize: 13 }}>{pkg.desc}</Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 800, color: neon.text }}>{pkg.title}</Typography>
+                      <Typography sx={{ color: neon.muted, mb: 1, fontSize: 13 }}>{pkg.desc}</Typography>
                       <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-                        <Chip label={`₹${pkg.price}`} color="error" size="small" sx={{ bgcolor: "#ffebee" }} />
-                        <Chip label={`${pkg.duration} days`} size="small" sx={{ bgcolor: "#ffebee" }} />
+                        <Chip label={`₹${pkg.price}`} size="small" sx={{ bgcolor: "rgba(34, 211, 238, 0.2)", color: "#7dd3fc", border: "1px solid rgba(34, 211, 238, 0.5)" }} />
+                        <Chip label={`${pkg.duration} days`} size="small" sx={{ bgcolor: "rgba(167, 139, 250, 0.2)", color: "#c4b5fd", border: "1px solid rgba(167, 139, 250, 0.5)" }} />
                       </Box>
-                      <Typography sx={{ color: "#999", fontSize: 11 }}>Created {new Date(pkg.created_at).toLocaleDateString()}</Typography>
+                      <Typography sx={{ color: neon.muted, fontSize: 11 }}>Created {new Date(pkg.created_at).toLocaleDateString()}</Typography>
                     </CardContent>
                     <CardActions>
-                      <Button size="small" sx={{ color: "#ff6b6b" }}>Edit</Button>
-                      <Button size="small" onClick={() => handleDeletePackage(pkg.id)} sx={{ color: "#d32f2f" }}>Delete</Button>
+                      <Button size="small" sx={{ color: "#38bdf8" }}>Edit</Button>
+                      <Button size="small" onClick={() => handleDeletePackage(pkg.id)} sx={{ color: "#f43f5e" }}>Delete</Button>
                     </CardActions>
                   </Card>
                 </motion.div>
@@ -336,34 +345,34 @@ export default function AgentDashboard() {
             ))}
           </Grid>
 
-          <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
-            <Tabs value={tabValue} onChange={(e, val) => setTabValue(val)}>
-              <Tab label={`Pending (${pendingPackages.length})`} />
-              <Tab label={`Approved (${approvedPackages.length})`} />
-              <Tab label={`Rejected (${rejectedPackages.length})`} />
+          <Box sx={{ borderBottom: "1px solid rgba(16, 185, 129, 0.35)", mb: 3 }}>
+            <Tabs value={tabValue} onChange={(e, val) => setTabValue(val)} textColor="inherit" TabIndicatorProps={{ style: { background: "#22d3ee" } }}>
+              <Tab label={`Pending (${pendingPackages.length})`} sx={{ color: neon.text }} />
+              <Tab label={`Approved (${approvedPackages.length})`} sx={{ color: neon.text }} />
+              <Tab label={`Rejected (${rejectedPackages.length})`} sx={{ color: neon.text }} />
             </Tabs>
           </Box>
 
           {tabValue === 0 && (
             <Grid container spacing={3} sx={{ mb: 6 }}>
               {pendingPackages.length === 0 ? (
-                <Grid item xs={12}><Typography sx={{ color: "#999" }}>No pending packages. Create and submit packages for admin approval!</Typography></Grid>
+                <Grid item xs={12}><Typography sx={{ color: neon.muted }}>No pending packages. Create and submit packages for admin approval!</Typography></Grid>
               ) : (
                 pendingPackages.map((pkg) => (
                   <Grid item xs={12} sm={6} md={4} key={pkg.id}>
                     <motion.div whileHover={{ y: -6 }} style={{ height: "100%" }}>
-                      <Card sx={{ height: "100%", bgcolor: "rgba(255,152,0,0.04)", borderRadius: 3 }}>
+                      <Card sx={{ height: "100%", bgcolor: neon.card, borderRadius: 3, border: neon.border, boxShadow: neon.glow }}>
                         <CardContent>
                           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "start", mb: 1 }}>
-                            <Typography variant="h6" sx={{ fontWeight: 800, color: "#c62828", flex: 1 }}>{pkg.title}</Typography>
-                            <Chip label="Pending" size="small" sx={{ bgcolor: "#fff3e0" }} />
+                            <Typography variant="h6" sx={{ fontWeight: 800, color: neon.text, flex: 1 }}>{pkg.title}</Typography>
+                            <Chip label="Pending" size="small" sx={{ bgcolor: "rgba(245, 158, 11, 0.2)", color: "#fbbf24", border: "1px solid rgba(245, 158, 11, 0.5)" }} />
                           </Box>
-                          <Typography sx={{ color: "#d84040", mb: 1, fontSize: 13 }}>{pkg.desc}</Typography>
+                          <Typography sx={{ color: neon.muted, mb: 1, fontSize: 13 }}>{pkg.desc}</Typography>
                           <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-                            <Chip label={`₹${pkg.price}`} color="error" size="small" sx={{ bgcolor: "#ffebee" }} />
-                            <Chip label={`${pkg.duration} days`} size="small" sx={{ bgcolor: "#ffebee" }} />
+                            <Chip label={`₹${pkg.price}`} size="small" sx={{ bgcolor: "rgba(34, 211, 238, 0.2)", color: "#7dd3fc", border: "1px solid rgba(34, 211, 238, 0.5)" }} />
+                            <Chip label={`${pkg.duration} days`} size="small" sx={{ bgcolor: "rgba(167, 139, 250, 0.2)", color: "#c4b5fd", border: "1px solid rgba(167, 139, 250, 0.5)" }} />
                           </Box>
-                          <Typography sx={{ color: "#999", fontSize: 11 }}>Awaiting admin approval...</Typography>
+                          <Typography sx={{ color: neon.muted, fontSize: 11 }}>Awaiting admin approval...</Typography>
                         </CardContent>
                       </Card>
                     </motion.div>
@@ -376,23 +385,23 @@ export default function AgentDashboard() {
           {tabValue === 1 && (
             <Grid container spacing={3} sx={{ mb: 6 }}>
               {approvedPackages.length === 0 ? (
-                <Grid item xs={12}><Typography sx={{ color: "#999" }}>No approved packages yet.</Typography></Grid>
+                <Grid item xs={12}><Typography sx={{ color: neon.muted }}>No approved packages yet.</Typography></Grid>
               ) : (
                 approvedPackages.map((pkg) => (
                   <Grid item xs={12} sm={6} md={4} key={pkg.id}>
                     <motion.div whileHover={{ y: -6 }} style={{ height: "100%" }}>
-                      <Card sx={{ height: "100%", bgcolor: "rgba(76,175,80,0.04)", borderRadius: 3 }}>
+                      <Card sx={{ height: "100%", bgcolor: neon.card, borderRadius: 3, border: neon.border, boxShadow: neon.glow }}>
                         <CardContent>
                           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "start", mb: 1 }}>
-                            <Typography variant="h6" sx={{ fontWeight: 800, color: "#2e7d32", flex: 1 }}>{pkg.title}</Typography>
-                            <Chip label="Live" color="success" size="small" />
+                            <Typography variant="h6" sx={{ fontWeight: 800, color: neon.text, flex: 1 }}>{pkg.title}</Typography>
+                            <Chip label="Live" size="small" sx={{ bgcolor: "rgba(34, 197, 94, 0.2)", color: "#22c55e", border: "1px solid rgba(34, 197, 94, 0.5)" }} />
                           </Box>
-                          <Typography sx={{ color: "#4caf50", mb: 1, fontSize: 13 }}>{pkg.desc}</Typography>
+                          <Typography sx={{ color: neon.muted, mb: 1, fontSize: 13 }}>{pkg.desc}</Typography>
                           <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-                            <Chip label={`₹${pkg.price}`} color="success" size="small" sx={{ bgcolor: "#e8f5e9" }} />
-                            <Chip label={`${pkg.duration} days`} size="small" sx={{ bgcolor: "#e8f5e9" }} />
+                            <Chip label={`₹${pkg.price}`} size="small" sx={{ bgcolor: "rgba(34, 211, 238, 0.2)", color: "#7dd3fc", border: "1px solid rgba(34, 211, 238, 0.5)" }} />
+                            <Chip label={`${pkg.duration} days`} size="small" sx={{ bgcolor: "rgba(167, 139, 250, 0.2)", color: "#c4b5fd", border: "1px solid rgba(167, 139, 250, 0.5)" }} />
                           </Box>
-                          <Typography sx={{ color: "#999", fontSize: 11 }}>Approved on {new Date(pkg.approved_at).toLocaleDateString()}</Typography>
+                          <Typography sx={{ color: neon.muted, fontSize: 11 }}>Approved on {new Date(pkg.approved_at).toLocaleDateString()}</Typography>
                         </CardContent>
                       </Card>
                     </motion.div>
@@ -405,23 +414,23 @@ export default function AgentDashboard() {
           {tabValue === 2 && (
             <Grid container spacing={3} sx={{ mb: 6 }}>
               {rejectedPackages.length === 0 ? (
-                <Grid item xs={12}><Typography sx={{ color: "#999" }}>No rejected packages.</Typography></Grid>
+                <Grid item xs={12}><Typography sx={{ color: neon.muted }}>No rejected packages.</Typography></Grid>
               ) : (
                 rejectedPackages.map((pkg) => (
                   <Grid item xs={12} sm={6} md={4} key={pkg.id}>
                     <motion.div whileHover={{ y: -6 }} style={{ height: "100%" }}>
-                      <Card sx={{ height: "100%", bgcolor: "rgba(244,67,54,0.04)", borderRadius: 3 }}>
+                      <Card sx={{ height: "100%", bgcolor: neon.card, borderRadius: 3, border: neon.border, boxShadow: neon.glow }}>
                         <CardContent>
                           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "start", mb: 1 }}>
-                            <Typography variant="h6" sx={{ fontWeight: 800, color: "#c62828", flex: 1 }}>{pkg.title}</Typography>
-                            <Chip label="Rejected" color="error" size="small" />
+                            <Typography variant="h6" sx={{ fontWeight: 800, color: neon.text, flex: 1 }}>{pkg.title}</Typography>
+                            <Chip label="Rejected" size="small" sx={{ bgcolor: "rgba(244, 63, 94, 0.2)", color: "#f43f5e", border: "1px solid rgba(244, 63, 94, 0.5)" }} />
                           </Box>
-                          <Typography sx={{ color: "#d84040", mb: 1, fontSize: 13 }}>{pkg.desc}</Typography>
+                          <Typography sx={{ color: neon.muted, mb: 1, fontSize: 13 }}>{pkg.desc}</Typography>
                           <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-                            <Chip label={`₹${pkg.price}`} color="error" size="small" sx={{ bgcolor: "#ffebee" }} />
-                            <Chip label={`${pkg.duration} days`} size="small" sx={{ bgcolor: "#ffebee" }} />
+                            <Chip label={`₹${pkg.price}`} size="small" sx={{ bgcolor: "rgba(34, 211, 238, 0.2)", color: "#7dd3fc", border: "1px solid rgba(34, 211, 238, 0.5)" }} />
+                            <Chip label={`${pkg.duration} days`} size="small" sx={{ bgcolor: "rgba(167, 139, 250, 0.2)", color: "#c4b5fd", border: "1px solid rgba(167, 139, 250, 0.5)" }} />
                           </Box>
-                          <Typography sx={{ color: "#999", fontSize: 11 }}>Rejected on {new Date(pkg.rejected_at).toLocaleDateString()}</Typography>
+                          <Typography sx={{ color: neon.muted, fontSize: 11 }}>Rejected on {new Date(pkg.rejected_at).toLocaleDateString()}</Typography>
                         </CardContent>
                       </Card>
                     </motion.div>
@@ -431,34 +440,34 @@ export default function AgentDashboard() {
             </Grid>
           )}
 
-          <Typography variant="h6" sx={{ mb: 2, color: "#d84040", fontWeight: 800 }}>User Bookings for Your Approved Packages</Typography>
+          <Typography variant="h6" sx={{ mb: 2, color: "#22d3ee", fontWeight: 900 }}>User Bookings for Your Approved Packages</Typography>
 
-          <TableContainer component={Paper} sx={{ borderRadius: 2, mb: 4 }}>
+          <TableContainer component={Paper} sx={{ borderRadius: 2, mb: 4, bgcolor: neon.card, border: neon.border, boxShadow: neon.glow }}>
             <Table>
-              <TableHead sx={{ bgcolor: "rgba(255,107,107,0.08)" }}>
+              <TableHead sx={{ bgcolor: "rgba(34, 211, 238, 0.12)" }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 700, color: "#c62828" }}>Package</TableCell>
-                  <TableCell sx={{ fontWeight: 700, color: "#c62828" }}>Customer Email</TableCell>
-                  <TableCell sx={{ fontWeight: 700, color: "#c62828" }}>Travel Date</TableCell>
-                  <TableCell sx={{ fontWeight: 700, color: "#c62828" }} align="right">Persons</TableCell>
-                  <TableCell sx={{ fontWeight: 700, color: "#c62828" }} align="right">Total Amount</TableCell>
-                  <TableCell sx={{ fontWeight: 700, color: "#c62828" }} align="right">Your Commission (10%)</TableCell>
+                  <TableCell sx={{ fontWeight: 800, color: "#22d3ee" }}>Package</TableCell>
+                  <TableCell sx={{ fontWeight: 800, color: "#22d3ee" }}>Customer Email</TableCell>
+                  <TableCell sx={{ fontWeight: 800, color: "#22d3ee" }}>Travel Date</TableCell>
+                  <TableCell sx={{ fontWeight: 800, color: "#22d3ee" }} align="right">Persons</TableCell>
+                  <TableCell sx={{ fontWeight: 800, color: "#22d3ee" }} align="right">Total Amount</TableCell>
+                  <TableCell sx={{ fontWeight: 800, color: "#22d3ee" }} align="right">Your Commission (10%)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {userBookings.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} sx={{ textAlign: "center", color: "#999", py: 3 }}>No user bookings yet for your approved packages</TableCell>
+                    <TableCell colSpan={6} sx={{ textAlign: "center", color: neon.muted, py: 3 }}>No user bookings yet for your approved packages</TableCell>
                   </TableRow>
                 ) : (
                   userBookings.map((booking, idx) => (
-                    <TableRow key={idx} sx={{ '&:hover': { bgcolor: "rgba(255,107,107,0.02)" } }}>
-                      <TableCell sx={{ color: "#c62828", fontWeight: 600 }}>{booking.package_title}</TableCell>
-                      <TableCell sx={{ color: "#555" }}>{booking.customer_email || "Guest"}</TableCell>
-                      <TableCell sx={{ color: "#555" }}>{new Date(booking.date).toLocaleDateString()}</TableCell>
-                      <TableCell align="right" sx={{ color: "#555" }}>{booking.persons}</TableCell>
-                      <TableCell align="right" sx={{ color: "#c62828", fontWeight: 700 }}>₹{booking.total?.toLocaleString()}</TableCell>
-                      <TableCell align="right" sx={{ color: "#ff6b6b", fontWeight: 700 }}>₹{Math.round(booking.total * 0.1).toLocaleString()}</TableCell>
+                    <TableRow key={idx} sx={{ '&:hover': { bgcolor: "rgba(34, 211, 238, 0.08)" } }}>
+                      <TableCell sx={{ color: neon.text, fontWeight: 600 }}>{booking.package_title}</TableCell>
+                      <TableCell sx={{ color: neon.muted }}>{booking.customer_email || "Guest"}</TableCell>
+                      <TableCell sx={{ color: neon.muted }}>{new Date(booking.date).toLocaleDateString()}</TableCell>
+                      <TableCell align="right" sx={{ color: neon.muted }}>{booking.persons}</TableCell>
+                      <TableCell align="right" sx={{ color: "#22d3ee", fontWeight: 700 }}>₹{booking.total?.toLocaleString()}</TableCell>
+                      <TableCell align="right" sx={{ color: "#34d399", fontWeight: 700 }}>₹{Math.round(booking.total * 0.1).toLocaleString()}</TableCell>
                     </TableRow>
                   ))
                 )}
@@ -466,31 +475,139 @@ export default function AgentDashboard() {
             </Table>
           </TableContainer>
 
-          <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-            <DialogTitle sx={{ fontWeight: 800, color: "#ff6b6b" }}>Create New Package</DialogTitle>
+          <Dialog
+            open={openDialog}
+            onClose={() => setOpenDialog(false)}
+            maxWidth="sm"
+            fullWidth
+            PaperProps={{ sx: { bgcolor: neon.card, border: neon.border } }}
+          >
+            <DialogTitle sx={{ fontWeight: 900, color: "#22d3ee" }}>Create New Package</DialogTitle>
             <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}>
-              <TextField fullWidth label="Package Title" value={newPkg.title} onChange={(e) => setNewPkg({ ...newPkg, title: e.target.value })} placeholder="e.g., Paris City Tour" />
-              <TextField fullWidth label="Travel Destination (Required)" value={newPkg.travel_destination} onChange={(e) => setNewPkg({ ...newPkg, travel_destination: e.target.value })} placeholder="e.g., Paris, France" />
+              <TextField
+                fullWidth
+                label="Package Title"
+                value={newPkg.title}
+                onChange={(e) => setNewPkg({ ...newPkg, title: e.target.value })}
+                placeholder="e.g., Paris City Tour"
+                sx={{
+                  "& .MuiInputLabel-root": { color: neon.muted },
+                  "& .MuiInputLabel-root.Mui-focused": { color: "#22d3ee" },
+                  "& .MuiOutlinedInput-root": {
+                    color: neon.text,
+                    bgcolor: "rgba(2, 6, 23, 0.35)",
+                    borderRadius: "12px",
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(34, 211, 238, 0.35)" },
+                }}
+              />
+              <TextField
+                fullWidth
+                label="Travel Destination (Required)"
+                value={newPkg.travel_destination}
+                onChange={(e) => setNewPkg({ ...newPkg, travel_destination: e.target.value })}
+                placeholder="e.g., Paris, France"
+                sx={{
+                  "& .MuiInputLabel-root": { color: neon.muted },
+                  "& .MuiInputLabel-root.Mui-focused": { color: "#22d3ee" },
+                  "& .MuiOutlinedInput-root": {
+                    color: neon.text,
+                    bgcolor: "rgba(2, 6, 23, 0.35)",
+                    borderRadius: "12px",
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(34, 211, 238, 0.35)" },
+                }}
+              />
               <Button variant="outlined" color="info" onClick={() => fetchImageFromUnsplash(newPkg.travel_destination)} disabled={fetchingImage || !newPkg.travel_destination}>
                 {fetchingImage ? "Fetching Image..." : "Auto-Fetch Image by Location"}
               </Button>
               <Box>
-                <Typography variant="body2" sx={{ mb: 1, color: "#666", fontWeight: 600 }}>Custom Image Upload (Optional)</Typography>
-                <input type="file" accept="image/*" onChange={handleImageUpload} />
+                <Typography variant="body2" sx={{ mb: 1, color: neon.muted, fontWeight: 600 }}>Custom Image Upload (Optional)</Typography>
+                <input type="file" accept="image/*" onChange={handleImageUpload} style={{ color: neon.muted }} />
               </Box>
               {newPkg.image_url && (
                 <Box sx={{ width: "100%", height: 200, bgcolor: "#f0f0f0", borderRadius: 2, overflow: "hidden" }}>
                   <img src={newPkg.image_url} alt="package preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </Box>
               )}
-              <TextField fullWidth label="Description" value={newPkg.desc} onChange={(e) => setNewPkg({ ...newPkg, desc: e.target.value })} placeholder="e.g., 3 days exploring the city" multiline rows={2} />
-              <TextField fullWidth label="Travel Plans (Optional)" value={newPkg.travel_plans} onChange={(e) => setNewPkg({ ...newPkg, travel_plans: e.target.value })} placeholder="e.g., Day 1: Eiffel Tower, Day 2: Louvre..." multiline rows={2} />
-              <TextField fullWidth label="Price (₹)" type="number" value={newPkg.price} onChange={(e) => setNewPkg({ ...newPkg, price: e.target.value })} inputProps={{ min: 1000, step: 100 }} />
-              <TextField fullWidth label="Duration (days)" type="number" value={newPkg.duration} onChange={(e) => setNewPkg({ ...newPkg, duration: e.target.value })} inputProps={{ min: 1, step: 1 }} />
+              <TextField
+                fullWidth
+                label="Description"
+                value={newPkg.desc}
+                onChange={(e) => setNewPkg({ ...newPkg, desc: e.target.value })}
+                placeholder="e.g., 3 days exploring the city"
+                multiline
+                rows={2}
+                sx={{
+                  "& .MuiInputLabel-root": { color: neon.muted },
+                  "& .MuiInputLabel-root.Mui-focused": { color: "#22d3ee" },
+                  "& .MuiOutlinedInput-root": {
+                    color: neon.text,
+                    bgcolor: "rgba(2, 6, 23, 0.35)",
+                    borderRadius: "12px",
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(34, 211, 238, 0.35)" },
+                }}
+              />
+              <TextField
+                fullWidth
+                label="Travel Plans (Optional)"
+                value={newPkg.travel_plans}
+                onChange={(e) => setNewPkg({ ...newPkg, travel_plans: e.target.value })}
+                placeholder="e.g., Day 1: Eiffel Tower, Day 2: Louvre..."
+                multiline
+                rows={2}
+                sx={{
+                  "& .MuiInputLabel-root": { color: neon.muted },
+                  "& .MuiInputLabel-root.Mui-focused": { color: "#22d3ee" },
+                  "& .MuiOutlinedInput-root": {
+                    color: neon.text,
+                    bgcolor: "rgba(2, 6, 23, 0.35)",
+                    borderRadius: "12px",
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(34, 211, 238, 0.35)" },
+                }}
+              />
+              <TextField
+                fullWidth
+                label="Price (₹)"
+                type="number"
+                value={newPkg.price}
+                onChange={(e) => setNewPkg({ ...newPkg, price: e.target.value })}
+                inputProps={{ min: 1000, step: 100 }}
+                sx={{
+                  "& .MuiInputLabel-root": { color: neon.muted },
+                  "& .MuiInputLabel-root.Mui-focused": { color: "#22d3ee" },
+                  "& .MuiOutlinedInput-root": {
+                    color: neon.text,
+                    bgcolor: "rgba(2, 6, 23, 0.35)",
+                    borderRadius: "12px",
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(34, 211, 238, 0.35)" },
+                }}
+              />
+              <TextField
+                fullWidth
+                label="Duration (days)"
+                type="number"
+                value={newPkg.duration}
+                onChange={(e) => setNewPkg({ ...newPkg, duration: e.target.value })}
+                inputProps={{ min: 1, step: 1 }}
+                sx={{
+                  "& .MuiInputLabel-root": { color: neon.muted },
+                  "& .MuiInputLabel-root.Mui-focused": { color: "#22d3ee" },
+                  "& .MuiOutlinedInput-root": {
+                    color: neon.text,
+                    bgcolor: "rgba(2, 6, 23, 0.35)",
+                    borderRadius: "12px",
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(34, 211, 238, 0.35)" },
+                }}
+              />
             </DialogContent>
             <DialogActions sx={{ p: 2 }}>
               <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-              <Button onClick={handleCreatePackage} variant="contained" sx={{ bgcolor: "#ff6b6b", color: "#fff", '&:hover': { bgcolor: "#ff5252" } }}>Create Package</Button>
+              <Button onClick={handleCreatePackage} variant="contained" sx={{ bgcolor: "#22d3ee", color: "#0b0f1f", fontWeight: 800, '&:hover': { bgcolor: "#38bdf8" } }}>Create Package</Button>
             </DialogActions>
           </Dialog>
 
@@ -499,6 +616,7 @@ export default function AgentDashboard() {
           </Snackbar>
         </>
       )}
-    </Container>
+      </Container>
+    </Box>
   );
 }
